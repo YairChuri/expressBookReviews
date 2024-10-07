@@ -51,11 +51,30 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  console.log("writing a review....");
-  return res.status(201).json({ message: "Thank you for your review." });
+  const isbn = req.params.isbn;
+  const username = req.session.authorization.username;
+  const review = req.body.review;
+
+  let reviews = books[isbn].reviews;
+  reviews[username] = review;
+
+  return res.status(201).json({ 
+    message: `Thank you for your review on ${books[isbn].title}.`,
+    reviews:  books[isbn].reviews});
 
 });
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const isbn = req.params.isbn;
+  const username = req.session.authorization.username;
+  let reviews = books[isbn].reviews;
+  if (reviews[username])
+    delete reviews[username]
 
+  return res.status(201).json({ 
+    message: `Deleted your review on ${books[isbn].title}.`,
+    reviews:  books[isbn].reviews});
+
+});
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
